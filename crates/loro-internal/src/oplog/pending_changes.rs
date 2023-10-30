@@ -34,7 +34,7 @@ impl Deref for PendingChange {
 
 #[derive(Debug, Default)]
 pub(crate) struct PendingChanges {
-    changes: FxHashMap<ID, SmallVec<[PendingChange; 1]>>,
+    pub(crate) changes: FxHashMap<ID, SmallVec<[PendingChange; 1]>>,
 }
 
 impl OpLog {

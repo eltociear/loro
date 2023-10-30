@@ -304,6 +304,12 @@ impl Loro {
     pub fn unsubscribe(&self, subscription: u32) {
         self.0.unsubscribe(SubID::from_u32(subscription))
     }
+
+    #[wasm_bindgen(js_name = "diagnoseOplogSize")]
+    pub fn diagnose_oplog_size(&self) {
+        let size = self.0.oplog().lock().unwrap().collect_size();
+        console_log!("{:#?}", &size)
+    }
 }
 
 #[allow(unused)]

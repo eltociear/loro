@@ -477,6 +477,14 @@ impl LoroDoc {
 
     // PERF: opt
     pub fn import_batch(&mut self, bytes: &[Vec<u8>]) -> LoroResult<()> {
+        if bytes.is_empty() {
+            return Ok(());
+        }
+
+        if bytes.len() == 1 {
+            return self.import(&bytes[1]);
+        }
+
         self.commit();
         let is_detached = self.is_detached();
         self.detach();

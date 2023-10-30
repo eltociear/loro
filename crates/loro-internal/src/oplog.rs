@@ -73,6 +73,15 @@ pub struct AppDagNode {
     pub(crate) len: usize,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct OpLogSizeInfo {
+    pub change_num: usize,
+    pub op_num: usize,
+    pub atom_op_num: usize,
+    pub dag_num: usize,
+    pub pending_num: usize,
+}
+
 impl Clone for OpLog {
     fn clone(&self) -> Self {
         Self {
@@ -184,6 +193,34 @@ impl OpLog {
 
     pub fn is_empty(&self) -> bool {
         self.dag.map.is_empty() && self.arena.is_empty()
+    }
+
+    pub fn collect_size(&self) -> OpLogSizeInfo {
+        OpLogSizeInfo {
+            change_num: self
+                .changes
+                .iter()
+                .map(|(c, changes)| changes.len())
+                .sum::<usize>(),
+            op_num: self
+                .changes
+                .iter()
+                .flat_map(|(c, changes)| changes.iter())
+                .map(|x| x.ops.len())
+                .sum::<usize>(),
+            atom_op_num: self
+                .changes
+                .iter()
+                .filter_map(|(c, changes)| changes.last().map(|x| x.ctr_end() as usize))
+                .sum::<usize>(),
+            dag_num: self.dag.map.iter().map(|(x, v)| v.len()).sum::<usize>(),
+            pending_num: self
+                .pending_changes
+                .changes
+                .iter()
+                .map(|(x, v)| v.len())
+                .sum::<usize>(),
+        }
     }
 
     /// Import a change.

@@ -46,6 +46,8 @@ mod sync {
 }
 #[cfg(feature = "test_utils")]
 mod run {
+    use criterion::black_box;
+
     use super::*;
     use bench_utils::TextAction;
     use loro_internal::LoroDoc;
@@ -57,8 +59,8 @@ mod run {
             if !ran {
                 let actions = bench_utils::get_automerge_actions();
                 let text = loro.get_text("text");
+                let mut txn = loro.txn().unwrap();
                 for TextAction { pos, ins, del } in actions.iter() {
-                    let mut txn = loro.txn().unwrap();
                     text.delete(&mut txn, *pos, *del).unwrap();
                     text.insert(&mut txn, *pos, ins).unwrap();
                 }
@@ -103,8 +105,9 @@ mod run {
             ensure_ran();
             let buf = loro.export_snapshot();
             b.iter(|| {
-                let store2 = LoroDoc::default();
-                store2.import(&buf).unwrap();
+                let mut store2 = LoroDoc::default();
+                store2.start_auto_commit();
+                store2.import(black_box(&buf)).unwrap();
             })
         });
     }

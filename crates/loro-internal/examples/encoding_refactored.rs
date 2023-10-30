@@ -68,6 +68,7 @@ fn bench_decode() {
                 text.insert_(*pos, ins);
             }
         }
+
         let snapshot = loro.export_snapshot();
         // for _ in 0..100 {
         //     black_box(loro.export_snapshot());
